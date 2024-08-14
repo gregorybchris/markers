@@ -18,15 +18,15 @@ version = "0.1.0"
 include = "markers"
 
 [tool.poetry.dependencies]
-python = ">=3.12"
 click = "^8.1.7"
+python = ">=3.12"
 rich = "^13.7.1"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.10.0"
-pytest = "^8.2.0"
-ruff = "^0.5.0"
-semver = "^3.0.0"
+mypy = "^1.11.1"
+pytest = "^8.3.2"
+ruff = "^0.5.7"
+semver = "^3.0.2"
 
 [tool.poetry.scripts]
 markers = "markers.cli:main"
@@ -88,6 +88,6 @@ convention = "google"
 
 [tool.ruff.lint.extend-per-file-ignores]
 "**/__init__.py" = ["D"]
-"**/tests/**/*.py" = ["D", "SLF", "PLR2004"]
-"markers/main.py" = ["T201", "T203"]
+"**/tests/**/*.py" = ["D", "SLF", "PLR2004", "PLR6301"]
 "markers/cli.py" = ["T201", "T203"]
+"markers/parser.py" = ["A005"]

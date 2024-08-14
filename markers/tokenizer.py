@@ -18,7 +18,7 @@ class Tokenizer:
             list[Token]: The list of tokens.
         """
         for c in self.program:
-            if c in [ParenTokens.LEFT_PAREN, ParenTokens.RIGHT_PAREN]:
+            if c in {ParenTokens.LEFT_PAREN, ParenTokens.RIGHT_PAREN}:
                 self._append()
                 self.tokens.append(c)
             elif c == " ":
@@ -29,6 +29,6 @@ class Tokenizer:
         return self.tokens
 
     def _append(self) -> None:
-        if self.token != "":
+        if self.token:
             self.tokens.append(self.token)
             self.token = ""

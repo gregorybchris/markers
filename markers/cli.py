@@ -60,7 +60,7 @@ def eval_command(
     """Run the CLI."""
     set_logger_config(info, debug)
 
-    env = {**{var: True for var in true_vars}, **{var: False for var in false_vars}}
+    env = {**dict.fromkeys(true_vars, True), **dict.fromkeys(false_vars, False)}
 
     tokens = Tokenizer(formula).tokenize()
     expr = Parser(tokens).parse()

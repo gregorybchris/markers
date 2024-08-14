@@ -7,8 +7,8 @@ from markers.tokenizer import Tokenizer
 __version__ = importlib.metadata.version("markers")
 
 __all__ = [
-    "__version__",
     "Evaluator",
     "Parser",
     "Tokenizer",
+    "__version__",
 ]
