@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from markers.types import BinaryOp, BinaryOpKind, Expr, Lit, UnaryOp, UnaryOpKind, Var, VarName
+from markers.type import BinaryOp, BinaryOpKind, Expr, Lit, UnaryOp, UnaryOpKind, Var, VarName
 
 
 @dataclass

@@ -2,7 +2,7 @@ import re
 
 import pytest
 from markers import Parser
-from markers.types import BinaryOp, BinaryOpKind, Lit, Token, UnaryOp, UnaryOpKind, Var
+from markers.type import BinaryOp, BinaryOpKind, Lit, Token, UnaryOp, UnaryOpKind, Var
 
 
 class TestParser:

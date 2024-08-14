@@ -1,6 +1,6 @@
 import pytest
 from markers import Evaluator
-from markers.types import BinaryOp, BinaryOpKind, Lit, UnaryOp, UnaryOpKind, Var
+from markers.type import BinaryOp, BinaryOpKind, Lit, UnaryOp, UnaryOpKind, Var
 
 
 class TestEvaluator:

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from markers.types import (
+from markers.type import (
     BinaryOp,
     BinaryOpKind,
     BinaryOpTokens,

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from markers.types import ParenTokens, Token
+from markers.type import ParenTokens, Token
 
 
 @dataclass
