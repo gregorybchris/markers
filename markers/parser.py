@@ -57,28 +57,32 @@ class Parser:
         while self._match(UnaryOpTokens.NOT):
             left = self._not()
             return UnaryOp(UnaryOpKind.NOT, left)
-        return self._atom()
+        return self._paren()
 
-    def _atom(self) -> Expr:
+    def _paren(self) -> Expr:
         if self._match(ParenTokens.LEFT_PAREN):
-            right = self._or()
+            result = self._or()
             if not self._match(ParenTokens.RIGHT_PAREN):
                 msg = f"Expected token {ParenTokens.RIGHT_PAREN} at position {self.char_num}"
                 raise SyntaxError(msg)
-            return right
+            return result
+        return self._lit()
 
+    def _lit(self) -> Expr:
         if self._match(BoolTokens.TRUE):
             return Lit(True)
         if self._match(BoolTokens.FALSE):
             return Lit(False)
+        return self._var()
 
-        if self._has():
-            name = self._peek()
-            self._next()
-            return Var(name)
+    def _var(self) -> Expr:
+        if not self._has():
+            msg = "Unexpected end of input"
+            raise SyntaxError(msg)
 
-        msg = "Unexpected end of input"
-        raise SyntaxError(msg)
+        name = self._peek()
+        self._next()
+        return Var(name)
 
     def _match(self, token: Token) -> bool:
         if self._has() and self._peek() == token:
