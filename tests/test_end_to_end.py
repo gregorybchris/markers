@@ -8,7 +8,7 @@ class TestEndToEnd:
         tokens = tokenizer.tokenize()
         parser = Parser(tokens)
         expr = parser.parse()
-        var_names = ["A", "C"]
+        env = {"A": True, "C": True}
         evaluator = Evaluator()
-        result = evaluator.evaluate(expr, var_names)
+        result = evaluator.evaluate(expr, env)
         assert result

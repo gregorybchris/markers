@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 Token = str
-VarName = str
+Env = dict[str, bool]
 
 
 class BinaryOpTokens:

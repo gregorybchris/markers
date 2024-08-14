@@ -23,12 +23,12 @@ def run() -> None:
     print(expr)
     print()
 
-    var_names = ["A", "C"]
-    print("Variable names: ", var_names)
+    env = {"A": True, "C": True}
+    print("Environment: ", env)
     print()
 
     evaluator = Evaluator()
-    result = evaluator.evaluate(expr, var_names)
+    result = evaluator.evaluate(expr, env)
     print("Result: ", result)
 
 

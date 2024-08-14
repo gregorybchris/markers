@@ -9,5 +9,5 @@ Boolean formula parsing
 markers parse "not a or b"
 
 # Eval
-markers eval "not a or b" -t b -t a
+markers eval "not a or b" -t b -f a
 ```
