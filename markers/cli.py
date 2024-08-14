@@ -23,10 +23,12 @@ def set_logger_config(info: bool, debug: bool) -> None:
 
 @main.command(name="parse")
 @click.argument("formula")
+@click.option("--pretty", is_flag=True)
 @click.option("--info", is_flag=True)
 @click.option("--debug", is_flag=True)
 def parse_command(
     formula: str,
+    pretty: bool = False,
     info: bool = False,
     debug: bool = False,
 ) -> None:
@@ -35,7 +37,11 @@ def parse_command(
 
     tokens = Tokenizer(formula).tokenize()
     expr = Parser(tokens).parse()
-    pprint(expr)
+
+    if pretty:
+        print(str(expr))
+    else:
+        pprint(expr)
 
 
 @main.command(name="eval")
