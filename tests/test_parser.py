@@ -75,3 +75,8 @@ class TestParser:
         tokens = ["false"]
         expr = Parser(tokens).parse()
         assert expr == Lit(False)
+
+    def test_parse_invalid_var_raises_syntax_error(self) -> None:
+        tokens = ["A", "or", "0_invalid"]
+        with pytest.raises(SyntaxError, match=re.escape('Unexpected token "0_invalid" at position 3')):
+            Parser(tokens).parse()

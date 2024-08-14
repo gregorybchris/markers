@@ -80,6 +80,10 @@ class Parser:
             msg = "Unexpected end of input"
             raise SyntaxError(msg)
 
+        if not self._peek().isidentifier():
+            msg = f'Unexpected token "{self._peek()}" at position {self.char_num}'
+            raise SyntaxError(msg)
+
         name = self._peek()
         self._next()
         return Var(name)
