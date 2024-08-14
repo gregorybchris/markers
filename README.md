@@ -2,6 +2,14 @@
 
 Boolean formula parsing
 
+## Installation
+
+[Poetry](https://python-poetry.org/) is a requirement
+
+```bash
+poetry install
+```
+
 ## CLI
 
 ```bash
