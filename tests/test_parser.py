@@ -80,3 +80,13 @@ class TestParser:
         tokens = ["A", "or", "0_invalid"]
         with pytest.raises(SyntaxError, match=re.escape('Unexpected token "0_invalid" at position 3')):
             Parser(tokens).parse()
+
+    def test_parse_repeated_and(self) -> None:
+        tokens = ["A", "and", "B", "and", "C"]
+        expr = Parser(tokens).parse()
+        assert expr == BinaryOp(BinaryOpKind.AND, BinaryOp(BinaryOpKind.AND, Var("A"), Var("B")), Var("C"))
+
+    def test_parse_repeated_or(self) -> None:
+        tokens = ["A", "or", "B", "or", "C"]
+        expr = Parser(tokens).parse()
+        assert expr == BinaryOp(BinaryOpKind.OR, BinaryOp(BinaryOpKind.OR, Var("A"), Var("B")), Var("C"))
