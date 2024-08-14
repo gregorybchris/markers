@@ -1,4 +1,4 @@
-from pprint import pprint
+from rich.pretty import pprint
 
 from markers import Evaluator, Parser, Tokenizer
 

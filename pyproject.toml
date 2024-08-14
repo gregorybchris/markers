@@ -19,12 +19,17 @@ include = "markers"
 
 [tool.poetry.dependencies]
 python = ">=3.12"
+click = "^8.1.7"
+rich = "^13.7.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
 pytest = "^8.2.0"
 ruff = "^0.5.0"
 semver = "^3.0.0"
+
+[tool.poetry.scripts]
+markers = "markers.cli:main"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
@@ -85,3 +90,4 @@ convention = "google"
 "**/__init__.py" = ["D"]
 "**/tests/**/*.py" = ["D", "SLF", "PLR2004"]
 "markers/main.py" = ["T201", "T203"]
+"markers/cli.py" = ["T201", "T203"]
