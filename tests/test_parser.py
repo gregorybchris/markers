@@ -48,7 +48,7 @@ class TestParser:
 
     def test_parse_missing_right_paren_raises_syntax_error(self) -> None:
         tokens = ["(", "A", "or", "B"]
-        with pytest.raises(SyntaxError, match=re.escape("Expected token )")):
+        with pytest.raises(SyntaxError, match=re.escape("Expected token ) at position 5")):
             Parser(tokens).parse()
 
     def test_parse_missing_left_paren_raises_syntax_error(self) -> None:

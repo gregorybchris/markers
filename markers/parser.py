@@ -63,7 +63,7 @@ class Parser:
         if self._match(ParenTokens.LEFT_PAREN):
             right = self._or()
             if not self._match(ParenTokens.RIGHT_PAREN):
-                msg = f"Expected token {ParenTokens.RIGHT_PAREN}"
+                msg = f"Expected token {ParenTokens.RIGHT_PAREN} at position {self.char_num}"
                 raise SyntaxError(msg)
             return right
 
