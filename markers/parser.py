@@ -41,20 +41,20 @@ class Parser:
 
     def _or(self) -> Expr:
         left = self._and()
-        while self._match(BinaryOpTokens.OR):
+        if self._match(BinaryOpTokens.OR):
             right = self._and()
             left = BinaryOp(BinaryOpKind.OR, left, right)
         return left
 
     def _and(self) -> Expr:
         left = self._not()
-        while self._match(BinaryOpTokens.AND):
+        if self._match(BinaryOpTokens.AND):
             right = self._not()
             left = BinaryOp(BinaryOpKind.AND, left, right)
         return left
 
     def _not(self) -> Expr:
-        while self._match(UnaryOpTokens.NOT):
+        if self._match(UnaryOpTokens.NOT):
             left = self._not()
             return UnaryOp(UnaryOpKind.NOT, left)
         return self._paren()
