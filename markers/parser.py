@@ -76,17 +76,20 @@ class Parser:
         return self._var()
 
     def _var(self) -> Expr:
+        if self._has():
+            name = self._peek()
+            if name.isidentifier():
+                self._next()
+                return Var(name)
+        return self._default()
+
+    def _default(self) -> Expr:
         if not self._has():
             msg = "Unexpected end of input"
             raise SyntaxError(msg)
 
-        if not self._peek().isidentifier():
-            msg = f'Unexpected token "{self._peek()}" at position {self.char_num}'
-            raise SyntaxError(msg)
-
-        name = self._peek()
-        self._next()
-        return Var(name)
+        msg = f'Unexpected token "{self._peek()}" at position {self.char_num}'
+        raise SyntaxError(msg)
 
     def _match(self, token: Token) -> bool:
         if self._has() and self._peek() == token:
