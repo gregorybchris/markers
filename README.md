@@ -1,5 +1,7 @@
 # Markers
 
+Boolean formula parsing
+
 ## CLI
 
 ```bash
