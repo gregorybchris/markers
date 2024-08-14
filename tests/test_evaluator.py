@@ -1,3 +1,4 @@
+import pytest
 from markers import Evaluator
 from markers.types import BinaryOp, BinaryOpKind, Lit, UnaryOp, UnaryOpKind, Var
 
@@ -62,3 +63,24 @@ class TestEvaluator:
         true_vars = ["A"]
         result = Evaluator().evaluate(expr, true_vars)
         assert not result
+
+    def test_evaluate_false_vars(self) -> None:
+        expr = Var("A")
+        true_vars = ["B"]
+        false_vars = ["A"]
+        result = Evaluator().evaluate(expr, true_vars, false_vars)
+        assert not result
+
+    def test_evaluate_unknown_variable_name(self) -> None:
+        expr = Var("A")
+        true_vars = ["B"]
+        false_vars = ["C"]
+        with pytest.raises(ValueError, match="Unknown variable: A"):
+            Evaluator().evaluate(expr, true_vars, false_vars)
+
+    def test_evaluate_variable_both_true_and_false(self) -> None:
+        expr = Var("A")
+        true_vars = ["A"]
+        false_vars = ["A"]
+        with pytest.raises(ValueError, match="Variable cannot be both true and false: A"):
+            Evaluator().evaluate(expr, true_vars, false_vars)

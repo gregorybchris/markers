@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import click
 from rich.pretty import pprint
@@ -40,19 +41,30 @@ def parse_command(
 
 @main.command(name="eval")
 @click.argument("formula")
-@click.option("--true_vars", "-t", multiple=True, required=True)
+@click.option("--true-vars", "-t", multiple=True, required=True)
+@click.option("--false-vars", "-f", multiple=True)
 @click.option("--info", is_flag=True)
 @click.option("--debug", is_flag=True)
 def eval_command(
     formula: str,
-    true_vars: list[str],
+    true_vars: tuple[str],
+    false_vars: tuple[str],
     info: bool = False,
     debug: bool = False,
 ) -> None:
     """Run the CLI."""
     set_logger_config(info, debug)
 
+    true_vars_list = list(true_vars)
+    false_vars_list: Optional[list[str]] = list(false_vars)
+
+    if false_vars_list is not None and len(false_vars_list) == 0:
+        false_vars_list = None
+
+    print(true_vars_list)
+    print(false_vars_list)
+
     tokens = Tokenizer(formula).tokenize()
     expr = Parser(tokens).parse()
-    result = Evaluator().evaluate(expr, true_vars)
+    result = Evaluator().evaluate(expr, true_vars_list, true_vars_list)
     print(result)
