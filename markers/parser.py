@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Callable
 
 from markers.error import ParseError
 from markers.type import (
@@ -55,28 +56,49 @@ class Parser(ParserBase):
         Returns:
             Expr: The AST expression node.
         """
-        result = self._or()
+        result = self._first_fn()
         if self._has():
             token = self._curr()
             msg = f'Unexpected token "{token.text}" at line {token.pos.line_no}, char {token.pos.char_no}'
             raise ParseError(msg, token.pos)
         return result
 
+    def _get_table(
+        self,
+    ) -> list[Callable[[], Expr]]:
+        return [
+            self._or,
+            self._and,
+            self._not,
+            self._paren,
+            self._lit,
+            self._var,
+            self._default,
+        ]
+
+    def _first_fn(self) -> Expr:
+        return self._get_table()[0]()
+
+    def _next_fn(self, fn: Callable[[], Expr]) -> Expr:
+        table = self._get_table()
+        precedence = table.index(fn)
+        return table[precedence + 1]()
+
     def _or(self) -> Expr:
-        left = self._and()
+        left = self._next_fn(self._or)
         while self._match(BinaryOpToken.OR):
             token = self._curr()
             self._advance()
-            right = self._and()
+            right = self._next_fn(self._or)
             left = BinaryOp(BinaryOpKind.OR, left, right, pos=token.pos)
         return left
 
     def _and(self) -> Expr:
-        left = self._not()
+        left = self._next_fn(self._and)
         while self._match(BinaryOpToken.AND):
             token = self._curr()
             self._advance()
-            right = self._not()
+            right = self._next_fn(self._and)
             left = BinaryOp(BinaryOpKind.AND, left, right, pos=token.pos)
         return left
 
@@ -86,12 +108,12 @@ class Parser(ParserBase):
             self._advance()
             left = self._not()
             return UnaryOp(UnaryOpKind.NOT, left, pos=token.pos)
-        return self._paren()
+        return self._next_fn(self._not)
 
     def _paren(self) -> Expr:
         if self._match(ParenToken.LEFT_PAREN):
             self._advance()
-            result = self._or()
+            result = self._first_fn()
             if self._match(ParenToken.RIGHT_PAREN):
                 self._advance()
             else:
@@ -99,7 +121,7 @@ class Parser(ParserBase):
                 msg = f"Expected token {ParenToken.RIGHT_PAREN} at line {token.pos.line_no}, char {token.pos.char_no}"
                 raise ParseError(msg, token.pos)
             return result
-        return self._lit()
+        return self._next_fn(self._paren)
 
     def _lit(self) -> Expr:
         if self._match(LitToken.TRUE):
@@ -110,7 +132,7 @@ class Parser(ParserBase):
             token = self._curr()
             self._advance()
             return Lit(False, pos=token.pos)
-        return self._var()
+        return self._next_fn(self._lit)
 
     def _var(self) -> Expr:
         if self._has():
@@ -120,7 +142,7 @@ class Parser(ParserBase):
                 token = self._curr()
                 self._advance()
                 return Var(name, pos=token.pos)
-        return self._default()
+        return self._next_fn(self._var)
 
     def _default(self) -> Expr:
         if not self._has():
