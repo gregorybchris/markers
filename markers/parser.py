@@ -4,16 +4,16 @@ from markers.error import ParseError
 from markers.type import (
     BinaryOp,
     BinaryOpKind,
-    BinaryOpTokens,
-    BoolTokens,
+    BinaryOpToken,
     Expr,
     Lit,
-    ParenTokens,
+    LitToken,
+    ParenToken,
     PosInfo,
     Token,
     UnaryOp,
     UnaryOpKind,
-    UnaryOpTokens,
+    UnaryOpToken,
     Var,
 )
 
@@ -65,7 +65,7 @@ class Parser(ParserBase):
 
     def _or(self) -> Expr:
         left = self._and()
-        while self._match(BinaryOpTokens.OR):
+        while self._match(BinaryOpToken.OR):
             token = self._curr()
             self._advance()
             right = self._and()
@@ -74,7 +74,7 @@ class Parser(ParserBase):
 
     def _and(self) -> Expr:
         left = self._not()
-        while self._match(BinaryOpTokens.AND):
+        while self._match(BinaryOpToken.AND):
             token = self._curr()
             self._advance()
             right = self._not()
@@ -82,7 +82,7 @@ class Parser(ParserBase):
         return left
 
     def _not(self) -> Expr:
-        if self._match(UnaryOpTokens.NOT):
+        if self._match(UnaryOpToken.NOT):
             token = self._curr()
             self._advance()
             left = self._not()
@@ -90,25 +90,25 @@ class Parser(ParserBase):
         return self._paren()
 
     def _paren(self) -> Expr:
-        if self._match(ParenTokens.LEFT_PAREN):
+        if self._match(ParenToken.LEFT_PAREN):
             self._advance()
             result = self._or()
-            if self._match(ParenTokens.RIGHT_PAREN):
+            if self._match(ParenToken.RIGHT_PAREN):
                 self._advance()
             else:
                 token = self._prev()
                 pos_info = token.pos_info
-                msg = f"Expected token {ParenTokens.RIGHT_PAREN} at line {pos_info.line_no}, char {pos_info.char_no}"
+                msg = f"Expected token {ParenToken.RIGHT_PAREN} at line {pos_info.line_no}, char {pos_info.char_no}"
                 raise ParseError(msg, pos_info)
             return result
         return self._lit()
 
     def _lit(self) -> Expr:
-        if self._match(BoolTokens.TRUE):
+        if self._match(LitToken.TRUE):
             token = self._curr()
             self._advance()
             return Lit(token.pos_info, True)
-        if self._match(BoolTokens.FALSE):
+        if self._match(LitToken.FALSE):
             token = self._curr()
             self._advance()
             return Lit(token.pos_info, False)

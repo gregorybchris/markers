@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from markers.type import ParenTokens, PosInfo, Token
+from markers.type import ParenToken, PosInfo, Token
 
 
 @dataclass
@@ -20,7 +20,7 @@ class Tokenizer:
             list[Token]: The list of tokens.
         """
         for c in self.program:
-            if c in {ParenTokens.LEFT_PAREN, ParenTokens.RIGHT_PAREN}:
+            if c in {ParenToken.LEFT_PAREN, ParenToken.RIGHT_PAREN}:
                 self._append()
                 token = Token(PosInfo(self.line_no, self.char_no, 1), c)
                 self.tokens.append(token)

@@ -21,28 +21,28 @@ class Token:
     text: str
 
 
-class BinaryOpTokens:
+class BinaryOpToken(StrEnum):
     """Binary operator kind."""
 
     AND = "and"
     OR = "or"
 
 
-class UnaryOpTokens:
+class UnaryOpToken(StrEnum):
     """Unary operator kind."""
 
     NOT = "not"
 
 
-class ParenTokens:
+class ParenToken(StrEnum):
     """Parentheses tokens."""
 
     LEFT_PAREN = "("
     RIGHT_PAREN = ")"
 
 
-class BoolTokens:
-    """Boolean literal tokens."""
+class LitToken(StrEnum):
+    """Literal tokens."""
 
     TRUE = "true"
     FALSE = "false"
