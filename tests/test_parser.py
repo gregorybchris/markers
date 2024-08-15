@@ -120,3 +120,11 @@ class TestParser:
             Var(PosInfo(1, 1, 1), "A"),
             BinaryOp(PosInfo(1, 10, 2), BinaryOpKind.OR, Var(PosInfo(1, 8, 1), "B"), Var(PosInfo(1, 13, 1), "C")),
         )
+
+    def test_parse_missing_right_paren_retains_position_information(self) -> None:
+        tokens = [
+            Token(PosInfo(1, 1, 1), "("),
+            Token(PosInfo(1, 2, 1), "A"),
+        ]
+        with pytest.raises(ParseError, match=re.escape("Expected token ) at line 1, char 2")):
+            Parser(tokens).parse()
