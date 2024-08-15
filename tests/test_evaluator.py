@@ -31,7 +31,7 @@ class TestEvaluator:
         result = Evaluator().evaluate(expr, env)
         assert not result
 
-    def test_evaluate_var_raises_unknown_variable_name(self) -> None:
+    def test_evaluate_with_unknown_variable_raises_evaluate_error(self) -> None:
         expr = Var(p, "A")
         env: Env = {"B": True, "C": False}
         with pytest.raises(EvaluateError, match='Unknown variable: "A" at line 0, char 0'):

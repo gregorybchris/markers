@@ -56,22 +56,22 @@ class TestParser:
         expr = Parser(tokens).parse()
         assert expr == UnaryOp(p, UnaryOpKind.NOT, BinaryOp(p, BinaryOpKind.OR, Var(p, "A"), Var(p, "B")))
 
-    def test_parse_missing_right_paren_raises_syntax_error(self) -> None:
+    def test_parse_missing_right_paren_raises_parse_error(self) -> None:
         tokens = self._add_pos_info(["(", "A", "or", "B"])
         with pytest.raises(ParseError, match=re.escape("Expected token ) at line 0, char 0")):
             Parser(tokens).parse()
 
-    def test_parse_missing_left_paren_raises_syntax_error(self) -> None:
+    def test_parse_missing_left_paren_raises_parse_error(self) -> None:
         tokens = self._add_pos_info(["A", "or", "B", ")"])
         with pytest.raises(ParseError, match=re.escape('Unexpected token ")" at line 0, char 0')):
             Parser(tokens).parse()
 
-    def test_parse_empty_input_raises_syntax_error(self) -> None:
+    def test_parse_empty_input_raises_parse_error(self) -> None:
         tokens: list[Token] = []
         with pytest.raises(ParseError, match=re.escape("Unexpected end of input")):
             Parser(tokens).parse()
 
-    def test_incomplete_and_raises_syntax_error(self) -> None:
+    def test_incomplete_and_raises_parse_error(self) -> None:
         tokens = self._add_pos_info(["A", "and"])
         with pytest.raises(ParseError, match=re.escape("Unexpected end of input")):
             Parser(tokens).parse()
@@ -86,7 +86,7 @@ class TestParser:
         expr = Parser(tokens).parse()
         assert expr == Lit(p, False)
 
-    def test_parse_invalid_var_raises_syntax_error(self) -> None:
+    def test_parse_invalid_var_raises_parse_error(self) -> None:
         tokens = self._add_pos_info(["A", "or", "0_invalid"])
         with pytest.raises(ParseError, match=re.escape('Unexpected token "0_invalid" at line 0, char 0')):
             Parser(tokens).parse()

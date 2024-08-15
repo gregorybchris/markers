@@ -16,7 +16,7 @@ class Evaluator:
             env (Env): The environment with variable assignments.
 
         Raises:
-            SyntaxError: If a variable is unknown.
+            EvaluateError: If a variable is unknown.
             InternalError: If the expression is invalid.
 
         Returns:
