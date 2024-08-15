@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from markers.error import EvaluateError, InternalError
 from markers.type import BinaryOp, BinaryOpKind, Env, Expr, Lit, UnaryOp, UnaryOpKind, Var
 
 
@@ -15,8 +16,8 @@ class Evaluator:
             env (Env): The environment with variable assignments.
 
         Raises:
-            SyntaxError: If the expression is invalid.
             SyntaxError: If a variable is unknown.
+            InternalError: If the expression is invalid.
 
         Returns:
             bool: Whether the expression evaluates to true.
@@ -27,7 +28,7 @@ class Evaluator:
             case Var(pos_info, name):
                 if name not in env:
                     msg = f'Unknown variable: "{name}" at line {pos_info.line_no}, char {pos_info.char_no}'
-                    raise SyntaxError(msg)
+                    raise EvaluateError(msg, pos_info)
                 return env[name]
             case UnaryOp(_, UnaryOpKind.NOT, arg):
                 return not self.evaluate(arg, env)
@@ -35,6 +36,6 @@ class Evaluator:
                 return self.evaluate(left, env) and self.evaluate(right, env)
             case BinaryOp(_, BinaryOpKind.OR, left, right):
                 return self.evaluate(left, env) or self.evaluate(right, env)
-            case _:
-                msg = "Invalid expression"
-                raise SyntaxError(msg)
+            case other:
+                msg = f"Evaluate is not implement for expression type: {type(other)}"
+                raise InternalError(msg)

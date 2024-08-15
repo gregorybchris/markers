@@ -1,5 +1,6 @@
 import pytest
 from markers import Evaluator
+from markers.error import EvaluateError
 from markers.type import BinaryOp, BinaryOpKind, Env, Lit, PosInfo, UnaryOp, UnaryOpKind, Var
 
 p = PosInfo(0, 0, 0)
@@ -33,7 +34,7 @@ class TestEvaluator:
     def test_evaluate_var_raises_unknown_variable_name(self) -> None:
         expr = Var(p, "A")
         env: Env = {"B": True, "C": False}
-        with pytest.raises(SyntaxError, match='Unknown variable: "A" at line 0, char 0'):
+        with pytest.raises(EvaluateError, match='Unknown variable: "A" at line 0, char 0'):
             Evaluator().evaluate(expr, env)
 
     def test_evaluate_not_returns_negation_true(self) -> None:
@@ -80,5 +81,5 @@ class TestEvaluator:
             Var(PosInfo(2, 4, 1), "C"),
         )
         env: Env = {"A": True, "B": False}
-        with pytest.raises(SyntaxError, match='Unknown variable: "C" at line 2, char 4'):
+        with pytest.raises(EvaluateError, match='Unknown variable: "C" at line 2, char 4'):
             Evaluator().evaluate(expr, env)

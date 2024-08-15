@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from markers.error import ParseError
 from markers.type import (
     BinaryOp,
     BinaryOpKind,
@@ -8,6 +9,7 @@ from markers.type import (
     Expr,
     Lit,
     ParenTokens,
+    PosInfo,
     Token,
     UnaryOp,
     UnaryOpKind,
@@ -27,7 +29,7 @@ class Parser:
         """Parse the boolean expression.
 
         Raises:
-            SyntaxError: If the expression is invalid.
+            ParseError: If the expression is invalid.
 
         Returns:
             Expr: The AST expression node.
@@ -37,7 +39,7 @@ class Parser:
             token = self._peek()
             pos_info = token.pos_info
             msg = f'Unexpected token "{token.text}" at line {pos_info.line_no}, char {pos_info.char_no}'
-            raise SyntaxError(msg)
+            raise ParseError(msg, pos_info)
         return result
 
     def _or(self) -> Expr:
@@ -70,7 +72,7 @@ class Parser:
                 token = self._prev()
                 pos_info = token.pos_info
                 msg = f"Expected token {ParenTokens.RIGHT_PAREN} at line {pos_info.line_no}, char {pos_info.char_no}"
-                raise SyntaxError(msg)
+                raise ParseError(msg, pos_info)
             return result
         return self._lit()
 
@@ -96,12 +98,13 @@ class Parser:
     def _default(self) -> Expr:
         if not self._has():
             msg = "Unexpected end of input"
-            raise SyntaxError(msg)
+            # TODO(chris): Maybe handle this case better?
+            raise ParseError(msg, PosInfo(0, 0, 0))
 
         token = self._peek()
         pos_info = token.pos_info
         msg = f'Unexpected token "{token.text}" at line {pos_info.line_no}, char {pos_info.char_no}'
-        raise SyntaxError(msg)
+        raise ParseError(msg, pos_info)
 
     def _match(self, token_text: str) -> bool:
         if self._has() and self._peek().text == token_text:
