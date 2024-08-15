@@ -15,26 +15,26 @@ class Evaluator:
             env (Env): The environment with variable assignments.
 
         Raises:
-            ValueError: If the expression is invalid.
-            ValueError: If a variable is unknown.
+            SyntaxError: If the expression is invalid.
+            SyntaxError: If a variable is unknown.
 
         Returns:
             bool: Whether the expression evaluates to true.
         """
         match expr:
-            case Lit(val):
+            case Lit(_, val):
                 return val
-            case Var(name):
+            case Var(pos_info, name):
                 if name not in env:
-                    msg = f"Unknown variable: {name}"
-                    raise ValueError(msg)
+                    msg = f'Unknown variable: "{name}" at line {pos_info.line_no}, char {pos_info.char_no}'
+                    raise SyntaxError(msg)
                 return env[name]
-            case UnaryOp(UnaryOpKind.NOT, arg):
+            case UnaryOp(_, UnaryOpKind.NOT, arg):
                 return not self.evaluate(arg, env)
-            case BinaryOp(BinaryOpKind.AND, left, right):
+            case BinaryOp(_, BinaryOpKind.AND, left, right):
                 return self.evaluate(left, env) and self.evaluate(right, env)
-            case BinaryOp(BinaryOpKind.OR, left, right):
+            case BinaryOp(_, BinaryOpKind.OR, left, right):
                 return self.evaluate(left, env) or self.evaluate(right, env)
             case _:
                 msg = "Invalid expression"
-                raise ValueError(msg)
+                raise SyntaxError(msg)

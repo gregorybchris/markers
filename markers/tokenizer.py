@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from markers.type import ParenTokens, Token
+from markers.type import ParenTokens, PosInfo, Token
 
 
 @dataclass
@@ -9,7 +9,9 @@ class Tokenizer:
 
     program: str = ""
     tokens: list[Token] = field(default_factory=list)
-    token: str = ""
+    token_text: str = ""
+    line_no: int = 1
+    char_no: int = 1
 
     def tokenize(self) -> list[Token]:
         """Tokenize a boolean expression.
@@ -20,15 +22,24 @@ class Tokenizer:
         for c in self.program:
             if c in {ParenTokens.LEFT_PAREN, ParenTokens.RIGHT_PAREN}:
                 self._append()
-                self.tokens.append(c)
+                token = Token(PosInfo(self.line_no, self.char_no, 1), c)
+                self.tokens.append(token)
             elif c == " ":
                 self._append()
+            elif c == "\n":
+                self._append()
+                self.line_no += 1
+                self.char_no = 0
             else:
-                self.token += c
+                self.token_text += c
+            self.char_no += 1
         self._append()
         return self.tokens
 
     def _append(self) -> None:
-        if self.token:
-            self.tokens.append(self.token)
-            self.token = ""
+        if self.token_text:
+            token_length = len(self.token_text)
+            pos_info = PosInfo(self.line_no, self.char_no - token_length, token_length)
+            token = Token(pos_info, self.token_text)
+            self.tokens.append(token)
+            self.token_text = ""

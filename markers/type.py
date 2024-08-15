@@ -1,8 +1,24 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-Token = str
 Env = dict[str, bool]
+
+
+@dataclass
+class PosInfo:
+    """Position information in a program."""
+
+    line_no: int
+    char_no: int
+    length: int
+
+
+@dataclass
+class Token:
+    """Program token."""
+
+    pos_info: PosInfo
+    text: str
 
 
 class BinaryOpTokens:
@@ -49,7 +65,7 @@ class UnaryOpKind(StrEnum):
 class Expr:
     """AST expression node."""
 
-    pass
+    pos_info: PosInfo
 
 
 @dataclass

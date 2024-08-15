@@ -22,7 +22,6 @@ class Parser:
 
     tokens: list[Token]
     pos: int = 0
-    char_num: int = 0
 
     def parse(self) -> Expr:
         """Parse the boolean expression.
@@ -35,52 +34,63 @@ class Parser:
         """
         result = self._or()
         if self._has():
-            msg = f'Unexpected token "{self._peek()}" at position {self.char_num}'
+            token = self._peek()
+            pos_info = token.pos_info
+            msg = f'Unexpected token "{token.text}" at line {pos_info.line_no}, char {pos_info.char_no}'
             raise SyntaxError(msg)
         return result
 
     def _or(self) -> Expr:
         left = self._and()
         while self._match(BinaryOpTokens.OR):
+            token = self._prev()
             right = self._and()
-            left = BinaryOp(BinaryOpKind.OR, left, right)
+            left = BinaryOp(token.pos_info, BinaryOpKind.OR, left, right)
         return left
 
     def _and(self) -> Expr:
         left = self._not()
         while self._match(BinaryOpTokens.AND):
+            token = self._prev()
             right = self._not()
-            left = BinaryOp(BinaryOpKind.AND, left, right)
+            left = BinaryOp(token.pos_info, BinaryOpKind.AND, left, right)
         return left
 
     def _not(self) -> Expr:
         if self._match(UnaryOpTokens.NOT):
+            token = self._prev()
             left = self._not()
-            return UnaryOp(UnaryOpKind.NOT, left)
+            return UnaryOp(token.pos_info, UnaryOpKind.NOT, left)
         return self._paren()
 
     def _paren(self) -> Expr:
         if self._match(ParenTokens.LEFT_PAREN):
             result = self._or()
             if not self._match(ParenTokens.RIGHT_PAREN):
-                msg = f"Expected token {ParenTokens.RIGHT_PAREN} at position {self.char_num}"
+                token = self._prev()
+                pos_info = token.pos_info
+                msg = f"Expected token {ParenTokens.RIGHT_PAREN} at line {pos_info.line_no}, char {pos_info.char_no}"
                 raise SyntaxError(msg)
             return result
         return self._lit()
 
     def _lit(self) -> Expr:
         if self._match(BoolTokens.TRUE):
-            return Lit(True)
+            token = self._prev()
+            return Lit(token.pos_info, True)
         if self._match(BoolTokens.FALSE):
-            return Lit(False)
+            token = self._prev()
+            return Lit(token.pos_info, False)
         return self._var()
 
     def _var(self) -> Expr:
         if self._has():
-            name = self._peek()
+            token = self._peek()
+            name = token.text
             if name.isidentifier():
                 self._next()
-                return Var(name)
+                token = self._prev()
+                return Var(token.pos_info, name)
         return self._default()
 
     def _default(self) -> Expr:
@@ -88,18 +98,19 @@ class Parser:
             msg = "Unexpected end of input"
             raise SyntaxError(msg)
 
-        msg = f'Unexpected token "{self._peek()}" at position {self.char_num}'
+        token = self._peek()
+        pos_info = token.pos_info
+        msg = f'Unexpected token "{token.text}" at line {pos_info.line_no}, char {pos_info.char_no}'
         raise SyntaxError(msg)
 
-    def _match(self, token: Token) -> bool:
-        if self._has() and self._peek() == token:
+    def _match(self, token_text: str) -> bool:
+        if self._has() and self._peek().text == token_text:
             self._next()
             return True
         return False
 
     def _next(self) -> None:
         if self._has():
-            self.char_num += len(self._peek())
             self.pos += 1
 
     def _peek(self) -> Token:
