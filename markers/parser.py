@@ -23,7 +23,7 @@ class Parser:
     """Boolean expression parser."""
 
     tokens: list[Token]
-    pos: int = 0
+    idx: int = 0
 
     def parse(self) -> Expr:
         """Parse the boolean expression.
@@ -119,13 +119,13 @@ class Parser:
 
     def _advance(self) -> None:
         if self._has():
-            self.pos += 1
+            self.idx += 1
 
     def _curr(self) -> Token:
-        return self.tokens[self.pos]
+        return self.tokens[self.idx]
 
     def _prev(self) -> Token:
-        return self.tokens[self.pos - 1]
+        return self.tokens[self.idx - 1]
 
     def _has(self) -> bool:
-        return self.pos < len(self.tokens)
+        return self.idx < len(self.tokens)
