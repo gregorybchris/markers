@@ -23,12 +23,12 @@ def set_logger_config(info: bool, debug: bool) -> None:
 
 
 @main.command(name="parse")
-@click.argument("formula")
+@click.argument("program")
 @click.option("--pretty", is_flag=True)
 @click.option("--info", is_flag=True)
 @click.option("--debug", is_flag=True)
 def parse_command(
-    formula: str,
+    program: str,
     pretty: bool = False,
     info: bool = False,
     debug: bool = False,
@@ -36,8 +36,8 @@ def parse_command(
     """Run the CLI."""
     set_logger_config(info, debug)
 
-    with error_context(formula):
-        tokens = Tokenizer(formula).tokenize()
+    with error_context(program):
+        tokens = Tokenizer(program).tokenize()
         expr = Parser(tokens).parse()
 
         if pretty:
@@ -47,13 +47,13 @@ def parse_command(
 
 
 @main.command(name="eval")
-@click.argument("formula")
+@click.argument("program")
 @click.option("--true-vars", "-t", multiple=True)
 @click.option("--false-vars", "-f", multiple=True)
 @click.option("--info", is_flag=True)
 @click.option("--debug", is_flag=True)
 def eval_command(
-    formula: str,
+    program: str,
     true_vars: tuple[str],
     false_vars: tuple[str],
     info: bool = False,
@@ -62,9 +62,9 @@ def eval_command(
     """Run the CLI."""
     set_logger_config(info, debug)
 
-    with error_context(formula):
+    with error_context(program):
         env = {**dict.fromkeys(true_vars, True), **dict.fromkeys(false_vars, False)}
-        tokens = Tokenizer(formula).tokenize()
+        tokens = Tokenizer(program).tokenize()
         expr = Parser(tokens).parse()
         result = Evaluator().evaluate(expr, env)
         print(result)
