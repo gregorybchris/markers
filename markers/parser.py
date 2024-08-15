@@ -19,11 +19,32 @@ from markers.type import (
 
 
 @dataclass
-class Parser:
-    """Boolean expression parser."""
+class ParserBase:
+    """Boolean expression parser base class."""
 
     tokens: list[Token]
     idx: int = 0
+
+    def _match(self, token_text: str) -> bool:
+        return self._has() and self._curr().text == token_text
+
+    def _advance(self) -> None:
+        if self._has():
+            self.idx += 1
+
+    def _curr(self) -> Token:
+        return self.tokens[self.idx]
+
+    def _prev(self) -> Token:
+        return self.tokens[self.idx - 1]
+
+    def _has(self) -> bool:
+        return self.idx < len(self.tokens)
+
+
+@dataclass
+class Parser(ParserBase):
+    """Boolean expression parser."""
 
     def parse(self) -> Expr:
         """Parse the boolean expression.
@@ -113,19 +134,3 @@ class Parser:
         pos_info = token.pos_info
         msg = f'Unexpected token "{token.text}" at line {pos_info.line_no}, char {pos_info.char_no}'
         raise ParseError(msg, pos_info)
-
-    def _match(self, token_text: str) -> bool:
-        return self._has() and self._curr().text == token_text
-
-    def _advance(self) -> None:
-        if self._has():
-            self.idx += 1
-
-    def _curr(self) -> Token:
-        return self.tokens[self.idx]
-
-    def _prev(self) -> Token:
-        return self.tokens[self.idx - 1]
-
-    def _has(self) -> bool:
-        return self.idx < len(self.tokens)
