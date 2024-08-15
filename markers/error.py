@@ -2,52 +2,52 @@ import sys
 from contextlib import contextmanager
 from typing import Generator
 
-from markers.type import PosInfo
+from markers.type import PositionInfo
 
 
 class UserError(Exception):
     """Error resulting from user input."""
 
-    pos_info: PosInfo
+    pos: PositionInfo
 
-    def __init__(self, message: str, pos_info: PosInfo):
+    def __init__(self, message: str, pos: PositionInfo):
         """Initialize a UserError.
 
         Args:
             message (str): The error message.
-            pos_info (PosInfo): The position information of the error.
+            pos (PositionInfo): The position information of the error.
         """
         self.message = message
-        self.pos_info = pos_info
+        self.pos = pos
         super().__init__(message)
 
 
 class ParseError(UserError):
     """Error resulting from a failure to parse the program successfully."""
 
-    def __init__(self, message: str, pos_info: PosInfo):
+    def __init__(self, message: str, pos: PositionInfo):
         """Initialize a ParseError.
 
         Args:
             message (str): The error message.
-            pos_info (PosInfo): The position information of the error.
+            pos (PositionInfo): The position information of the error.
         """
         self.message = message
-        super().__init__(message, pos_info)
+        super().__init__(message, pos)
 
 
 class EvaluateError(UserError):
     """Error resulting from a failure to evaluate the program successfully."""
 
-    def __init__(self, message: str, pos_info: PosInfo):
+    def __init__(self, message: str, pos: PositionInfo):
         """Initialize a EvaluateError.
 
         Args:
             message (str): The error message.
-            pos_info (PosInfo): The position information of the error.
+            pos (PositionInfo): The position information of the error.
         """
         self.message = message
-        super().__init__(message, pos_info)
+        super().__init__(message, pos)
 
 
 class InternalError(Exception):
@@ -71,10 +71,9 @@ def error_context(program: str) -> Generator[None, None, None]:
     try:
         yield
     except UserError as exc:
-        pos_info = exc.pos_info
-        line_no = pos_info.line_no
-        char_no = pos_info.char_no
-        length = pos_info.length
+        line_no = exc.pos.line_no
+        char_no = exc.pos.char_no
+        length = exc.pos.length
 
         error_message = f"{type(exc).__name__}: {exc.message}"
         print(error_message, file=sys.stderr)

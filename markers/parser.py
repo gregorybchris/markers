@@ -9,7 +9,7 @@ from markers.type import (
     Lit,
     LitToken,
     ParenToken,
-    PosInfo,
+    PositionInfo,
     Token,
     UnaryOp,
     UnaryOpKind,
@@ -58,9 +58,8 @@ class Parser(ParserBase):
         result = self._or()
         if self._has():
             token = self._curr()
-            pos_info = token.pos_info
-            msg = f'Unexpected token "{token.text}" at line {pos_info.line_no}, char {pos_info.char_no}'
-            raise ParseError(msg, pos_info)
+            msg = f'Unexpected token "{token.text}" at line {token.pos.line_no}, char {token.pos.char_no}'
+            raise ParseError(msg, token.pos)
         return result
 
     def _or(self) -> Expr:
@@ -69,7 +68,7 @@ class Parser(ParserBase):
             token = self._curr()
             self._advance()
             right = self._and()
-            left = BinaryOp(token.pos_info, BinaryOpKind.OR, left, right)
+            left = BinaryOp(BinaryOpKind.OR, left, right, pos=token.pos)
         return left
 
     def _and(self) -> Expr:
@@ -78,7 +77,7 @@ class Parser(ParserBase):
             token = self._curr()
             self._advance()
             right = self._not()
-            left = BinaryOp(token.pos_info, BinaryOpKind.AND, left, right)
+            left = BinaryOp(BinaryOpKind.AND, left, right, pos=token.pos)
         return left
 
     def _not(self) -> Expr:
@@ -86,7 +85,7 @@ class Parser(ParserBase):
             token = self._curr()
             self._advance()
             left = self._not()
-            return UnaryOp(token.pos_info, UnaryOpKind.NOT, left)
+            return UnaryOp(UnaryOpKind.NOT, left, pos=token.pos)
         return self._paren()
 
     def _paren(self) -> Expr:
@@ -97,9 +96,8 @@ class Parser(ParserBase):
                 self._advance()
             else:
                 token = self._prev()
-                pos_info = token.pos_info
-                msg = f"Expected token {ParenToken.RIGHT_PAREN} at line {pos_info.line_no}, char {pos_info.char_no}"
-                raise ParseError(msg, pos_info)
+                msg = f"Expected token {ParenToken.RIGHT_PAREN} at line {token.pos.line_no}, char {token.pos.char_no}"
+                raise ParseError(msg, token.pos)
             return result
         return self._lit()
 
@@ -107,11 +105,11 @@ class Parser(ParserBase):
         if self._match(LitToken.TRUE):
             token = self._curr()
             self._advance()
-            return Lit(token.pos_info, True)
+            return Lit(True, pos=token.pos)
         if self._match(LitToken.FALSE):
             token = self._curr()
             self._advance()
-            return Lit(token.pos_info, False)
+            return Lit(False, pos=token.pos)
         return self._var()
 
     def _var(self) -> Expr:
@@ -121,16 +119,15 @@ class Parser(ParserBase):
             if name.isidentifier():
                 token = self._curr()
                 self._advance()
-                return Var(token.pos_info, name)
+                return Var(name, pos=token.pos)
         return self._default()
 
     def _default(self) -> Expr:
         if not self._has():
             msg = "Unexpected end of input"
             # TODO(chris): Maybe handle this case better?
-            raise ParseError(msg, PosInfo(0, 0, 0))
+            raise ParseError(msg, PositionInfo(0, 0, 0))
 
         token = self._curr()
-        pos_info = token.pos_info
-        msg = f'Unexpected token "{token.text}" at line {pos_info.line_no}, char {pos_info.char_no}'
-        raise ParseError(msg, pos_info)
+        msg = f'Unexpected token "{token.text}" at line {token.pos.line_no}, char {token.pos.char_no}'
+        raise ParseError(msg, token.pos)

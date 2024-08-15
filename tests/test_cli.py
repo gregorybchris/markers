@@ -13,10 +13,10 @@ class TestCli:
         result = cli_runner.invoke(main, ["parse", "a and b"])
         assert result.exit_code == 0
         expected = """BinaryOp(
-│   pos_info=PosInfo(line_no=1, char_no=3, length=3),
+│   pos=PositionInfo(line_no=1, char_no=3, length=3),
 │   kind=<BinaryOpKind.AND: 'and'>,
-│   left=Var(pos_info=PosInfo(line_no=1, char_no=1, length=1), name='a'),
-│   right=Var(pos_info=PosInfo(line_no=1, char_no=7, length=1), name='b')
+│   left=Var(pos=PositionInfo(line_no=1, char_no=1, length=1), name='a'),
+│   right=Var(pos=PositionInfo(line_no=1, char_no=7, length=1), name='b')
 )
 """
         assert result.output == expected

@@ -1,11 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 
 Env = dict[str, bool]
 
 
 @dataclass
-class PosInfo:
+class PositionInfo:
     """Position information in a program."""
 
     line_no: int
@@ -17,8 +17,8 @@ class PosInfo:
 class Token:
     """Program token."""
 
-    pos_info: PosInfo
     text: str
+    pos: PositionInfo = field(default_factory=lambda: PositionInfo(0, 0, 0))
 
 
 class BinaryOpToken(StrEnum):
@@ -61,11 +61,11 @@ class UnaryOpKind(StrEnum):
     NOT = "not"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Expr:
     """AST expression node."""
 
-    pos_info: PosInfo
+    pos: PositionInfo = field(default_factory=lambda: PositionInfo(0, 0, 0))
 
 
 @dataclass
