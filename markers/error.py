@@ -1,10 +1,29 @@
+import sys
+from contextlib import contextmanager
+from typing import Generator
+
 from markers.type import PosInfo
 
 
-class ParseError(Exception):
-    """Error resulting from a failure to parse the program successfully."""
+class UserError(Exception):
+    """Error resulting from user input."""
 
     pos_info: PosInfo
+
+    def __init__(self, message: str, pos_info: PosInfo):
+        """Initialize a UserError.
+
+        Args:
+            message (str): The error message.
+            pos_info (PosInfo): The position information of the error.
+        """
+        self.message = message
+        self.pos_info = pos_info
+        super().__init__(message)
+
+
+class ParseError(UserError):
+    """Error resulting from a failure to parse the program successfully."""
 
     def __init__(self, message: str, pos_info: PosInfo):
         """Initialize a ParseError.
@@ -14,14 +33,11 @@ class ParseError(Exception):
             pos_info (PosInfo): The position information of the error.
         """
         self.message = message
-        self.pos_info = pos_info
-        super().__init__(message)
+        super().__init__(message, pos_info)
 
 
-class EvaluateError(Exception):
+class EvaluateError(UserError):
     """Error resulting from a failure to evaluate the program successfully."""
-
-    pos_info: PosInfo
 
     def __init__(self, message: str, pos_info: PosInfo):
         """Initialize a EvaluateError.
@@ -31,8 +47,7 @@ class EvaluateError(Exception):
             pos_info (PosInfo): The position information of the error.
         """
         self.message = message
-        self.pos_info = pos_info
-        super().__init__(message)
+        super().__init__(message, pos_info)
 
 
 class InternalError(Exception):
@@ -46,3 +61,26 @@ class InternalError(Exception):
         """
         self.message = message
         super().__init__(message)
+
+
+@contextmanager
+def error_context(program: str) -> Generator[None, None, None]:
+    """Context manager to handle errors."""
+    lines = program.split("\n")
+
+    try:
+        yield
+    except UserError as exc:
+        pos_info = exc.pos_info
+        line_no = pos_info.line_no
+        char_no = pos_info.char_no
+        length = pos_info.length
+
+        error_message = f"{type(exc).__name__}: {exc.message}"
+        print(error_message, file=sys.stderr)
+        print()
+        program_line = lines[line_no - 1]
+        print(program_line, file=sys.stderr)
+
+        carets = "-" * (char_no - 1) + "^" * length
+        print(carets, file=sys.stderr)

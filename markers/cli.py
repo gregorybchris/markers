@@ -3,6 +3,7 @@ import logging
 import click
 from rich.pretty import pprint
 
+from markers.error import error_context
 from markers.evaluator import Evaluator
 from markers.parser import Parser
 from markers.tokenizer import Tokenizer
@@ -35,13 +36,14 @@ def parse_command(
     """Run the CLI."""
     set_logger_config(info, debug)
 
-    tokens = Tokenizer(formula).tokenize()
-    expr = Parser(tokens).parse()
+    with error_context(formula):
+        tokens = Tokenizer(formula).tokenize()
+        expr = Parser(tokens).parse()
 
-    if pretty:
-        print(str(expr))
-    else:
-        pprint(expr)
+        if pretty:
+            print(str(expr))
+        else:
+            pprint(expr)
 
 
 @main.command(name="eval")
@@ -60,9 +62,9 @@ def eval_command(
     """Run the CLI."""
     set_logger_config(info, debug)
 
-    env = {**dict.fromkeys(true_vars, True), **dict.fromkeys(false_vars, False)}
-
-    tokens = Tokenizer(formula).tokenize()
-    expr = Parser(tokens).parse()
-    result = Evaluator().evaluate(expr, env)
-    print(result)
+    with error_context(formula):
+        env = {**dict.fromkeys(true_vars, True), **dict.fromkeys(false_vars, False)}
+        tokens = Tokenizer(formula).tokenize()
+        expr = Parser(tokens).parse()
+        result = Evaluator().evaluate(expr, env)
+        print(result)
