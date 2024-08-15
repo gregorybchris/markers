@@ -73,7 +73,7 @@ class TestEvaluator:
         result = Evaluator().evaluate(expr, env)
         assert not result
 
-    def test_evaluate_retains_position_information(self) -> None:
+    def test_evaluate_retains_position_info(self) -> None:
         expr = BinaryOp(
             PosInfo(2, 1, 2),
             BinaryOpKind.OR,

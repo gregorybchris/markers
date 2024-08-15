@@ -46,7 +46,7 @@ class TestTokenizer:
         tokens = Tokenizer(program).tokenize()
         assert self._list_token_strings(tokens) == ["true", "and", "false"]
 
-    def test_tokenize_adds_position_information(self) -> None:
+    def test_tokenize_adds_position_info(self) -> None:
         program = "(A)and\nnot(B or C)"
         tokens = Tokenizer(program).tokenize()
         assert tokens == [

@@ -103,7 +103,7 @@ class TestParser:
         expr = Parser(tokens).parse()
         assert expr == BinaryOp(p, BinaryOpKind.OR, BinaryOp(p, BinaryOpKind.OR, Var(p, "A"), Var(p, "B")), Var(p, "C"))
 
-    def test_parse_retains_position_information(self) -> None:
+    def test_parse_retains_position_info(self) -> None:
         tokens = [
             Token(PosInfo(1, 1, 1), "A"),
             Token(PosInfo(1, 3, 3), "and"),
@@ -121,7 +121,7 @@ class TestParser:
             BinaryOp(PosInfo(1, 10, 2), BinaryOpKind.OR, Var(PosInfo(1, 8, 1), "B"), Var(PosInfo(1, 13, 1), "C")),
         )
 
-    def test_parse_missing_right_paren_retains_position_information(self) -> None:
+    def test_parse_missing_right_paren_retains_position_info(self) -> None:
         tokens = [
             Token(PosInfo(1, 1, 1), "("),
             Token(PosInfo(1, 2, 1), "A"),
