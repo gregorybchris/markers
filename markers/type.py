@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from enum import StrEnum
+from enum import StrEnum, auto
 
 Env = dict[str, bool]
 
@@ -51,14 +51,14 @@ class LitToken(StrEnum):
 class BinaryOpKind(StrEnum):
     """Binary operator kind."""
 
-    AND = "and"
-    OR = "or"
+    AND = auto()
+    OR = auto()
 
 
 class UnaryOpKind(StrEnum):
     """Unary operator kind."""
 
-    NOT = "not"
+    NOT = auto()
 
 
 @dataclass(kw_only=True)
