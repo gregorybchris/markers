@@ -104,9 +104,15 @@ class TestParser:
         assert expr == Lit(False)
 
     def test_parse_invalid_var_raises_parse_error(self) -> None:
-        tokens = [NameToken("A"), OrOpToken(), NameToken("0_invalid")]
-        with pytest.raises(ParseError, match=re.escape('Unexpected token "0_invalid" at line 0, char 0')):
+        # Testing expression: "A or 0_invalid"
+        tokens = [
+            NameToken("A", pos=PositionInfo(1, 1, 1)),
+            OrOpToken(pos=PositionInfo(1, 3, 2)),
+            NameToken("0_invalid", pos=PositionInfo(1, 6, 9)),
+        ]
+        with pytest.raises(ParseError, match=re.escape('Unexpected token "0_invalid" at line 1, char 6')) as exc:
             Parser(tokens).parse()
+        assert exc.value.pos == PositionInfo(1, 6, 9)
 
     def test_parse_repeated_and(self) -> None:
         tokens = [NameToken("A"), AndOpToken(), NameToken("B"), AndOpToken(), NameToken("C")]
@@ -119,7 +125,7 @@ class TestParser:
         assert expr == BinaryOp(BinaryOpKind.OR, BinaryOp(BinaryOpKind.OR, Var("A"), Var("B")), Var("C"))
 
     def test_parse_retains_position_info(self) -> None:
-        # Expression: "A and (B or C)"  # noqa: ERA001
+        # Testing expression: "A and (B or C)"
         tokens = [
             NameToken("A", pos=PositionInfo(1, 1, 1)),
             AndOpToken(pos=PositionInfo(1, 3, 3)),
@@ -143,11 +149,12 @@ class TestParser:
         )
 
     def test_parse_missing_right_paren_retains_position_info(self) -> None:
-        # Expression: "not (A"  # noqa: ERA001
+        # Testing expression: "not (A"
         tokens = [
             NotOpToken(pos=PositionInfo(1, 1, 1)),
             LeftParenToken(pos=PositionInfo(1, 5, 1)),
             NameToken("A", pos=PositionInfo(1, 6, 1)),
         ]
-        with pytest.raises(ParseError, match=re.escape("Expected token ) matching token ( at line 1, char 5")):
+        with pytest.raises(ParseError, match=re.escape("Expected token ) matching token ( at line 1, char 5")) as exc:
             Parser(tokens).parse()
+        assert exc.value.pos == PositionInfo(1, 5, 1)
