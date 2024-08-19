@@ -80,12 +80,12 @@ class Parser(ParserBase):
         self,
     ) -> list[Callable[[], Expr]]:
         return [
-            self._or,
-            self._and,
-            self._not,
-            self._paren,
-            self._lit,
-            self._var,
+            self._or,  # 6
+            self._and,  # 5
+            self._not,  # 4
+            self._paren,  # 3
+            self._lit,  # 2
+            self._var,  # 1
             self._default,
         ]
 

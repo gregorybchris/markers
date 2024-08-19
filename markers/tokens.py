@@ -1,15 +1,24 @@
 from dataclasses import dataclass, field
+from typing import Optional
 
-from markers.type import PositionInfo
+from markers.type import Associativity, PositionInfo
 
 
 @dataclass(kw_only=True)
 class Token:
     """Program token."""
 
-    # prec: int
     pos: PositionInfo = field(default_factory=lambda: PositionInfo(0, 0, 0))
-    # assoc: Optional[Associativity] = None
+
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 0
+
+    @property
+    def associativity(self) -> Optional[Associativity]:
+        """Return the associativity of the token."""
+        return None
 
 
 @dataclass
@@ -17,6 +26,11 @@ class LitToken(Token):
     """Boolean literal token."""
 
     value: bool
+
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 2
 
     def __str__(self) -> str:
         """Return the string representation of the token."""
@@ -29,6 +43,11 @@ class NameToken(Token):
 
     value: str
 
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 1
+
     def __str__(self) -> str:
         """Return the string representation of the token."""
         return self.value
@@ -37,6 +56,16 @@ class NameToken(Token):
 @dataclass
 class AndOpToken(Token):
     """And operator token."""
+
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 5
+
+    @property
+    def associativity(self) -> Optional[Associativity]:
+        """Return the associativity of the token."""
+        return Associativity.RIGHT
 
     def __str__(self) -> str:
         """Return the string representation of the token."""
@@ -47,6 +76,16 @@ class AndOpToken(Token):
 class OrOpToken(Token):
     """Or operator token."""
 
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 6
+
+    @property
+    def associativity(self) -> Optional[Associativity]:
+        """Return the associativity of the token."""
+        return Associativity.RIGHT
+
     def __str__(self) -> str:
         """Return the string representation of the token."""
         return "or"
@@ -55,6 +94,11 @@ class OrOpToken(Token):
 @dataclass
 class NotOpToken(Token):
     """Not operator token."""
+
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 4
 
     def __str__(self) -> str:
         """Return the string representation of the token."""
@@ -65,6 +109,11 @@ class NotOpToken(Token):
 class LeftParenToken(Token):
     """Left parenthesis token."""
 
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 3
+
     def __str__(self) -> str:
         """Return the string representation of the token."""
         return "("
@@ -73,6 +122,11 @@ class LeftParenToken(Token):
 @dataclass
 class RightParenToken(Token):
     """Right parenthesis token."""
+
+    @property
+    def precedence(self) -> int:
+        """Return the precedence of the token."""
+        return 3
 
     def __str__(self) -> str:
         """Return the string representation of the token."""
