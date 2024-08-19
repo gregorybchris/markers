@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Sequence
+from typing import Callable, Optional, Sequence
 
 from markers.error import ParseError
 from markers.expressions import (
@@ -31,14 +31,25 @@ class ParserBase:
     tokens: Sequence[Token]
     idx: int = 0
 
-    def _match(self, token_type: type) -> bool:
-        return self._has() and isinstance(self._curr(), token_type)
+    def _match(self, token_type: type) -> Optional[Token]:
+        if not self._has():
+            return None
+        token = self._peek()
+        if isinstance(token, token_type):
+            self._advance()
+            return token
+        return None
 
     def _advance(self) -> None:
         if self._has():
             self.idx += 1
 
-    def _curr(self) -> Token:
+    def _next(self) -> Token:
+        token = self._peek()
+        self._advance()
+        return token
+
+    def _peek(self) -> Token:
         return self.tokens[self.idx]
 
     def _has(self) -> bool:
@@ -60,7 +71,7 @@ class Parser(ParserBase):
         """
         result = self._first_fn()
         if self._has():
-            token = self._curr()
+            token = self._peek()
             msg = f'Unexpected token "{token!s}" at line {token.pos.line_no}, char {token.pos.char_no}'
             raise ParseError(msg, token.pos)
         return result
@@ -88,64 +99,45 @@ class Parser(ParserBase):
 
     def _or(self) -> Expr:
         left = self._next_fn(self._or)
-        while self._match(OrOpToken):
-            token = self._curr()
-            self._advance()
+        while token := self._match(OrOpToken):
             right = self._next_fn(self._or)
             left = BinaryOp(BinaryOpKind.OR, left, right, pos=token.pos)
         return left
 
     def _and(self) -> Expr:
         left = self._next_fn(self._and)
-        while self._match(AndOpToken):
-            token = self._curr()
-            self._advance()
+        while token := self._match(AndOpToken):
             right = self._next_fn(self._and)
             left = BinaryOp(BinaryOpKind.AND, left, right, pos=token.pos)
         return left
 
     def _not(self) -> Expr:
-        if self._match(NotOpToken):
-            token = self._curr()
-            self._advance()
+        if token := self._match(NotOpToken):
             left = self._not()
             return UnaryOp(UnaryOpKind.NOT, left, pos=token.pos)
         return self._next_fn(self._not)
 
     def _paren(self) -> Expr:
-        if self._match(LeftParenToken):
-            paren_token = self._curr()
-            self._advance()
+        if token := self._match(LeftParenToken):
             result = self._first_fn()
-            if self._match(RightParenToken):
-                self._advance()
-            else:
-                msg = (
-                    f"Expected token {RightParenToken()!s} matching token {LeftParenToken()!s} at "
-                    f"line {paren_token.pos.line_no}, char {paren_token.pos.char_no}"
-                )
-                raise ParseError(msg, paren_token.pos)
+            if not self._match(RightParenToken):
+                msg = f"Expected token ) matching token ( at line {token.pos.line_no}, char {token.pos.char_no}"
+                raise ParseError(msg, token.pos)
             return result
         return self._next_fn(self._paren)
 
     def _lit(self) -> Expr:
-        if self._match(LitToken):
-            token = self._curr()
+        if token := self._match(LitToken):
             assert isinstance(token, LitToken)
-            self._advance()
             return Lit(token.value, pos=token.pos)
         return self._next_fn(self._lit)
 
     def _var(self) -> Expr:
-        if self._match(NameToken):
-            token = self._curr()
+        if token := self._match(NameToken):
             assert isinstance(token, NameToken)
-            self._advance()
-
             if not token.value.isidentifier():
                 msg = f'Unexpected token "{token.value}" at line {token.pos.line_no}, char {token.pos.char_no}'
                 raise ParseError(msg, token.pos)
-
             return Var(token.value, pos=token.pos)
         return self._next_fn(self._var)
 
