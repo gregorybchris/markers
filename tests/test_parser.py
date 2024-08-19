@@ -75,13 +75,15 @@ class TestParser:
 
     def test_parse_missing_right_paren_raises_parse_error(self) -> None:
         tokens = [LeftParenToken(), NameToken("A"), OrOpToken(), NameToken("B")]
-        with pytest.raises(ParseError, match=re.escape("Expected token ) matching token ( at line 0, char 0")):
+        with pytest.raises(ParseError, match=re.escape("Expected closing paren matching opening")) as exc:
             Parser(tokens).parse()
+        assert exc.value.pos == PositionInfo(0, 0, 0)
 
     def test_parse_missing_left_paren_raises_parse_error(self) -> None:
         tokens = [NameToken("A"), OrOpToken(), NameToken("B"), RightParenToken()]
-        with pytest.raises(ParseError, match=re.escape('Unexpected token ")" at line 0, char 0')):
+        with pytest.raises(ParseError, match=re.escape('Unexpected token ")"')) as exc:
             Parser(tokens).parse()
+        assert exc.value.pos == PositionInfo(0, 0, 0)
 
     def test_parse_empty_input_raises_parse_error(self) -> None:
         tokens: list[Token] = []
@@ -110,7 +112,7 @@ class TestParser:
             OrOpToken(pos=PositionInfo(1, 3, 2)),
             NameToken("0_invalid", pos=PositionInfo(1, 6, 9)),
         ]
-        with pytest.raises(ParseError, match=re.escape('Unexpected token "0_invalid" at line 1, char 6')) as exc:
+        with pytest.raises(ParseError, match=re.escape('Unexpected token "0_invalid"')) as exc:
             Parser(tokens).parse()
         assert exc.value.pos == PositionInfo(1, 6, 9)
 
@@ -123,6 +125,17 @@ class TestParser:
         tokens = [NameToken("A"), OrOpToken(), NameToken("B"), OrOpToken(), NameToken("C")]
         expr = Parser(tokens).parse()
         assert expr == BinaryOp(BinaryOpKind.OR, BinaryOp(BinaryOpKind.OR, Var("A"), Var("B")), Var("C"))
+
+    def test_parse_expression_after_right_paren(self) -> None:
+        tokens = [
+            LeftParenToken(),
+            NameToken("A"),
+            RightParenToken(),
+            OrOpToken(),
+            NameToken("B"),
+        ]
+        expr = Parser(tokens).parse()
+        assert expr == BinaryOp(BinaryOpKind.OR, Var("A"), Var("B"))
 
     def test_parse_retains_position_info(self) -> None:
         # Testing expression: "A and (B or C)"
@@ -155,6 +168,6 @@ class TestParser:
             LeftParenToken(pos=PositionInfo(1, 5, 1)),
             NameToken("A", pos=PositionInfo(1, 6, 1)),
         ]
-        with pytest.raises(ParseError, match=re.escape("Expected token ) matching token ( at line 1, char 5")) as exc:
+        with pytest.raises(ParseError, match=re.escape("Expected closing paren matching opening")) as exc:
             Parser(tokens).parse()
         assert exc.value.pos == PositionInfo(1, 5, 1)

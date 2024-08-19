@@ -25,3 +25,8 @@ markers eval "not a or b" -t b -f a
 ```bash
 pytest tests
 ```
+
+## Acknowledgements
+
+- [Eoin Davey's Blog](https://vey.ie/2018/10/04/RecursiveDescent.html)
+- [Scrapscript Interpreter](https://github.com/tekknolagi/scrapscript)

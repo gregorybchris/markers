@@ -29,7 +29,8 @@ class TestCli:
     def test_eval_error(self, cli_runner: CliRunner) -> None:
         result = cli_runner.invoke(main, ["eval", "alice and bob and chris", "-t", "alice", "-t", "bob"])
         assert result.exit_code == 0
-        expected = """EvaluateError: Unknown variable: "chris" at line 1, char 19
+        expected = """EvaluateError: Unknown variable: "chris"
+line 1, col 19
 
 alice and bob and chris
 ------------------^^^^^

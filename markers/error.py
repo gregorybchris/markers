@@ -77,9 +77,12 @@ def error_context(program: str) -> Generator[None, None, None]:
 
         error_message = f"{type(exc).__name__}: {exc.message}"
         print(error_message, file=sys.stderr)
-        print()
-        program_line = lines[line_no - 1]
-        print(program_line, file=sys.stderr)
+        print(f"line {line_no}, col {char_no}", file=sys.stderr)
 
-        carets = "-" * (char_no - 1) + "^" * length
-        print(carets, file=sys.stderr)
+        if line_no > 0:
+            print()
+            program_line = lines[line_no - 1]
+            print(program_line, file=sys.stderr)
+
+            carets = "-" * (char_no - 1) + "^" * length
+            print(carets, file=sys.stderr)

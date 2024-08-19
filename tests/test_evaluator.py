@@ -33,8 +33,9 @@ class TestEvaluator:
     def test_evaluate_with_unknown_variable_raises_evaluate_error(self) -> None:
         expr = Var("A")
         env: Env = {"B": True, "C": False}
-        with pytest.raises(EvaluateError, match='Unknown variable: "A" at line 0, char 0'):
+        with pytest.raises(EvaluateError, match='Unknown variable: "A"') as exc:
             Evaluator().evaluate(expr, env)
+        assert exc.value.pos == PositionInfo(0, 0, 0)
 
     def test_evaluate_not_returns_negation_true(self) -> None:
         expr = UnaryOp(UnaryOpKind.NOT, Var("A"))
@@ -85,5 +86,6 @@ class TestEvaluator:
             pos=PositionInfo(2, 1, 2),
         )
         env: Env = {"A": True, "B": False}
-        with pytest.raises(EvaluateError, match='Unknown variable: "C" at line 2, char 4'):
+        with pytest.raises(EvaluateError, match='Unknown variable: "C"') as exc:
             Evaluator().evaluate(expr, env)
+        assert exc.value.pos == PositionInfo(2, 4, 1)

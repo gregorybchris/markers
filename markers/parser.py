@@ -28,7 +28,7 @@ from markers.tokens import (
 class ParserBase:
     """Boolean expression parser base class."""
 
-    # TODO(chris): Accept an iterable collection of tokens.
+    # TODO: Accept an iterable collection of tokens.
     tokens: Sequence[Token]
     idx: int = 0
 
@@ -73,7 +73,7 @@ class Parser(ParserBase):
         result = self._first_fn()
         if self._has():
             token = self._peek()
-            msg = f'Unexpected token "{token!s}" at line {token.pos.line_no}, char {token.pos.char_no}'
+            msg = f'Unexpected token "{token!s}"'
             raise ParseError(msg, token.pos)
         return result
 
@@ -81,12 +81,12 @@ class Parser(ParserBase):
         self,
     ) -> list[Callable[[], Expr]]:
         return [
-            self._or,  # 6
-            self._and,  # 5
-            self._not,  # 4
-            self._paren,  # 3
-            self._lit,  # 2
-            self._var,  # 1
+            self._or,
+            self._and,
+            self._not,
+            self._paren,
+            self._lit,
+            self._var,
             self._default,
         ]
 
@@ -114,15 +114,15 @@ class Parser(ParserBase):
 
     def _not(self) -> Expr:
         if token := self._match(NotOpToken):
-            left = self._not()
-            return UnaryOp(UnaryOpKind.NOT, left, pos=token.pos)
+            arg = self._not()
+            return UnaryOp(UnaryOpKind.NOT, arg, pos=token.pos)
         return self._next_fn(self._not)
 
     def _paren(self) -> Expr:
         if token := self._match(LeftParenToken):
             result = self._first_fn()
             if not self._match(RightParenToken):
-                msg = f"Expected token ) matching token ( at line {token.pos.line_no}, char {token.pos.char_no}"
+                msg = "Expected closing paren matching opening"
                 raise ParseError(msg, token.pos)
             return result
         return self._next_fn(self._paren)
@@ -137,12 +137,17 @@ class Parser(ParserBase):
         if token := self._match(NameToken):
             assert isinstance(token, NameToken)
             if not token.value.isidentifier():
-                msg = f'Unexpected token "{token.value}" at line {token.pos.line_no}, char {token.pos.char_no}'
+                msg = f'Unexpected token "{token.value}"'
                 raise ParseError(msg, token.pos)
             return Var(token.value, pos=token.pos)
         return self._next_fn(self._var)
 
-    def _default(self) -> Expr:  # noqa: PLR6301
+    def _default(self) -> Expr:
+        if len(self.tokens) == 0:
+            msg = "Unexpected end of input"
+            raise ParseError(msg, PositionInfo(0, 0, 0))
+
+        # TODO: Avoid accessing tokens directly
+        token = self.tokens[-1]
         msg = "Unexpected end of input"
-        # TODO(chris): Maybe handle this case better?
-        raise ParseError(msg, PositionInfo(0, 0, 0))
+        raise ParseError(msg, token.pos)

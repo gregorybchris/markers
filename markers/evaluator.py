@@ -28,7 +28,7 @@ class Evaluator:
                 return val
             case Var(name, pos=pos):
                 if name not in env:
-                    msg = f'Unknown variable: "{name}" at line {pos.line_no}, char {pos.char_no}'
+                    msg = f'Unknown variable: "{name}"'
                     raise EvaluateError(msg, pos)
                 return env[name]
             case UnaryOp(UnaryOpKind.NOT, arg):
