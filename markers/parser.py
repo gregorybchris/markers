@@ -28,6 +28,7 @@ from markers.tokens import (
 class ParserBase:
     """Boolean expression parser base class."""
 
+    # TODO(chris): Accept an iterable collection of tokens.
     tokens: Sequence[Token]
     idx: int = 0
 
