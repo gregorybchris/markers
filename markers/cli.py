@@ -5,8 +5,8 @@ from rich.pretty import pprint
 
 from markers.error import error_context
 from markers.evaluator import Evaluator
+from markers.lexer import Lexer
 from markers.parser import Parser
-from markers.tokenizer import Tokenizer
 
 
 @click.group()
@@ -37,7 +37,7 @@ def parse_command(
     set_logger_config(info, debug)
 
     with error_context(program):
-        tokens = Tokenizer(program).tokenize()
+        tokens = Lexer.tokenize(program)
         expr = Parser(tokens).parse()
 
         if pretty:
@@ -64,7 +64,7 @@ def eval_command(
 
     with error_context(program):
         env = {**dict.fromkeys(true_vars, True), **dict.fromkeys(false_vars, False)}
-        tokens = Tokenizer(program).tokenize()
+        tokens = Lexer.tokenize(program)
         expr = Parser(tokens).parse()
         result = Evaluator().evaluate(expr, env)
         print(result)

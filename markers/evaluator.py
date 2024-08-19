@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
 from markers.error import EvaluateError, InternalError
-from markers.type import BinaryOp, BinaryOpKind, Env, Expr, Lit, UnaryOp, UnaryOpKind, Var
+from markers.expressions import BinaryOp, BinaryOpKind, Expr, Lit, UnaryOp, UnaryOpKind, Var
+from markers.type import Env
 
 
 @dataclass

@@ -2,7 +2,7 @@ import sys
 from contextlib import contextmanager
 from typing import Generator
 
-from markers.type import PositionInfo
+from markers.tokens import PositionInfo
 
 
 class UserError(Exception):

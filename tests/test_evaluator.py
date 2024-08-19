@@ -1,7 +1,8 @@
 import pytest
 from markers import Evaluator
 from markers.error import EvaluateError
-from markers.type import BinaryOp, BinaryOpKind, Env, Lit, PositionInfo, UnaryOp, UnaryOpKind, Var
+from markers.expressions import BinaryOp, BinaryOpKind, Lit, UnaryOp, UnaryOpKind, Var
+from markers.type import Env, PositionInfo
 
 
 class TestEvaluator:

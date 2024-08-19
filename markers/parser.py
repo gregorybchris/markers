@@ -1,21 +1,26 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Sequence
 
 from markers.error import ParseError
-from markers.type import (
+from markers.expressions import (
     BinaryOp,
     BinaryOpKind,
-    BinaryOpToken,
     Expr,
     Lit,
-    LitToken,
-    ParenToken,
     PositionInfo,
-    Token,
     UnaryOp,
     UnaryOpKind,
-    UnaryOpToken,
     Var,
+)
+from markers.tokens import (
+    AndOperatorToken,
+    LeftParenToken,
+    LitToken,
+    NameToken,
+    NotOperatorToken,
+    OrOperatorToken,
+    RightParenToken,
+    Token,
 )
 
 
@@ -23,11 +28,11 @@ from markers.type import (
 class ParserBase:
     """Boolean expression parser base class."""
 
-    tokens: list[Token]
+    tokens: Sequence[Token]
     idx: int = 0
 
-    def _match(self, token_text: str) -> bool:
-        return self._has() and self._curr().text == token_text
+    def _match(self, token_type: type) -> bool:
+        return self._has() and isinstance(self._curr(), token_type)
 
     def _advance(self) -> None:
         if self._has():
@@ -59,7 +64,7 @@ class Parser(ParserBase):
         result = self._first_fn()
         if self._has():
             token = self._curr()
-            msg = f'Unexpected token "{token.text}" at line {token.pos.line_no}, char {token.pos.char_no}'
+            msg = f'Unexpected token "{token!s}" at line {token.pos.line_no}, char {token.pos.char_no}'
             raise ParseError(msg, token.pos)
         return result
 
@@ -86,7 +91,7 @@ class Parser(ParserBase):
 
     def _or(self) -> Expr:
         left = self._next_fn(self._or)
-        while self._match(BinaryOpToken.OR):
+        while self._match(OrOperatorToken):
             token = self._curr()
             self._advance()
             right = self._next_fn(self._or)
@@ -95,7 +100,7 @@ class Parser(ParserBase):
 
     def _and(self) -> Expr:
         left = self._next_fn(self._and)
-        while self._match(BinaryOpToken.AND):
+        while self._match(AndOperatorToken):
             token = self._curr()
             self._advance()
             right = self._next_fn(self._and)
@@ -103,7 +108,7 @@ class Parser(ParserBase):
         return left
 
     def _not(self) -> Expr:
-        if self._match(UnaryOpToken.NOT):
+        if self._match(NotOperatorToken):
             token = self._curr()
             self._advance()
             left = self._not()
@@ -111,45 +116,40 @@ class Parser(ParserBase):
         return self._next_fn(self._not)
 
     def _paren(self) -> Expr:
-        if self._match(ParenToken.LEFT_PAREN):
+        if self._match(LeftParenToken):
             self._advance()
             result = self._first_fn()
-            if self._match(ParenToken.RIGHT_PAREN):
+            if self._match(RightParenToken):
                 self._advance()
             else:
                 token = self._prev()
-                msg = f"Expected token {ParenToken.RIGHT_PAREN} at line {token.pos.line_no}, char {token.pos.char_no}"
+                msg = f"Expected token {RightParenToken()!s} at line {token.pos.line_no}, char {token.pos.char_no}"
                 raise ParseError(msg, token.pos)
             return result
         return self._next_fn(self._paren)
 
     def _lit(self) -> Expr:
-        if self._match(LitToken.TRUE):
+        if self._match(LitToken):
             token = self._curr()
+            assert isinstance(token, LitToken)
             self._advance()
-            return Lit(True, pos=token.pos)
-        if self._match(LitToken.FALSE):
-            token = self._curr()
-            self._advance()
-            return Lit(False, pos=token.pos)
+            return Lit(token.value, pos=token.pos)
         return self._next_fn(self._lit)
 
     def _var(self) -> Expr:
-        if self._has():
+        if self._match(NameToken):
             token = self._curr()
-            name = token.text
-            if name.isidentifier():
-                token = self._curr()
-                self._advance()
-                return Var(name, pos=token.pos)
+            assert isinstance(token, NameToken)
+            self._advance()
+
+            if not token.value.isidentifier():
+                msg = f'Unexpected token "{token.value}" at line {token.pos.line_no}, char {token.pos.char_no}'
+                raise ParseError(msg, token.pos)
+
+            return Var(token.value, pos=token.pos)
         return self._next_fn(self._var)
 
-    def _default(self) -> Expr:
-        if not self._has():
-            msg = "Unexpected end of input"
-            # TODO(chris): Maybe handle this case better?
-            raise ParseError(msg, PositionInfo(0, 0, 0))
-
-        token = self._curr()
-        msg = f'Unexpected token "{token.text}" at line {token.pos.line_no}, char {token.pos.char_no}'
-        raise ParseError(msg, token.pos)
+    def _default(self) -> Expr:  # noqa: PLR6301
+        msg = "Unexpected end of input"
+        # TODO(chris): Maybe handle this case better?
+        raise ParseError(msg, PositionInfo(0, 0, 0))
