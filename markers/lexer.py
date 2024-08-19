@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterator, Optional
 
 from markers.error import InternalError
 from markers.tokens import (
@@ -49,12 +49,29 @@ class LexerBase:
 class Lexer(LexerBase):
     """Boolean expression lexer."""
 
+    curr: Optional[Token] = None
+
+    def peek(self) -> Token:
+        """Peek the next token.
+
+        Returns:
+            Token: The next token.
+        """
+        token = self.next()
+        self.curr = token
+        return token
+
     def next(self) -> Token:  # noqa: PLR0911
         """Get the next token.
 
         Returns:
             Token: The next token.
         """
+        if self.curr is not None:
+            token = self.curr
+            self.curr = None
+            return token
+
         while self._has_char():
             line_no = self.line_no
             char_no = self.char_no
