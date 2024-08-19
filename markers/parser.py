@@ -41,9 +41,6 @@ class ParserBase:
     def _curr(self) -> Token:
         return self.tokens[self.idx]
 
-    def _prev(self) -> Token:
-        return self.tokens[self.idx - 1]
-
     def _has(self) -> bool:
         return self.idx < len(self.tokens)
 
