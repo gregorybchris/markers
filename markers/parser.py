@@ -117,14 +117,17 @@ class Parser(ParserBase):
 
     def _paren(self) -> Expr:
         if self._match(LeftParenToken):
+            paren_token = self._curr()
             self._advance()
             result = self._first_fn()
             if self._match(RightParenToken):
                 self._advance()
             else:
-                token = self._prev()
-                msg = f"Expected token {RightParenToken()!s} at line {token.pos.line_no}, char {token.pos.char_no}"
-                raise ParseError(msg, token.pos)
+                msg = (
+                    f"Expected token {RightParenToken()!s} matching token {LeftParenToken()!s} at "
+                    f"line {paren_token.pos.line_no}, char {paren_token.pos.char_no}"
+                )
+                raise ParseError(msg, paren_token.pos)
             return result
         return self._next_fn(self._paren)
 

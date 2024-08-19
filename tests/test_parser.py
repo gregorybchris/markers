@@ -75,7 +75,7 @@ class TestParser:
 
     def test_parse_missing_right_paren_raises_parse_error(self) -> None:
         tokens = [LeftParenToken(), NameToken("A"), OrOpToken(), NameToken("B")]
-        with pytest.raises(ParseError, match=re.escape("Expected token ) at line 0, char 0")):
+        with pytest.raises(ParseError, match=re.escape("Expected token ) matching token ( at line 0, char 0")):
             Parser(tokens).parse()
 
     def test_parse_missing_left_paren_raises_parse_error(self) -> None:
@@ -119,6 +119,7 @@ class TestParser:
         assert expr == BinaryOp(BinaryOpKind.OR, BinaryOp(BinaryOpKind.OR, Var("A"), Var("B")), Var("C"))
 
     def test_parse_retains_position_info(self) -> None:
+        # Expression: "A and (B or C)"  # noqa: ERA001
         tokens = [
             NameToken("A", pos=PositionInfo(1, 1, 1)),
             AndOpToken(pos=PositionInfo(1, 3, 3)),
@@ -142,9 +143,11 @@ class TestParser:
         )
 
     def test_parse_missing_right_paren_retains_position_info(self) -> None:
+        # Expression: "not (A"  # noqa: ERA001
         tokens = [
-            LeftParenToken(pos=PositionInfo(1, 1, 1)),
-            NameToken("A", pos=PositionInfo(1, 2, 1)),
+            NotOpToken(pos=PositionInfo(1, 1, 1)),
+            LeftParenToken(pos=PositionInfo(1, 5, 1)),
+            NameToken("A", pos=PositionInfo(1, 6, 1)),
         ]
-        with pytest.raises(ParseError, match=re.escape("Expected token ) at line 1, char 2")):
+        with pytest.raises(ParseError, match=re.escape("Expected token ) matching token ( at line 1, char 5")):
             Parser(tokens).parse()
