@@ -13,12 +13,12 @@ from markers.expressions import (
     Var,
 )
 from markers.tokens import (
-    AndOperatorToken,
+    AndOpToken,
     LeftParenToken,
     LitToken,
     NameToken,
-    NotOperatorToken,
-    OrOperatorToken,
+    NotOpToken,
+    OrOpToken,
     RightParenToken,
     Token,
 )
@@ -91,7 +91,7 @@ class Parser(ParserBase):
 
     def _or(self) -> Expr:
         left = self._next_fn(self._or)
-        while self._match(OrOperatorToken):
+        while self._match(OrOpToken):
             token = self._curr()
             self._advance()
             right = self._next_fn(self._or)
@@ -100,7 +100,7 @@ class Parser(ParserBase):
 
     def _and(self) -> Expr:
         left = self._next_fn(self._and)
-        while self._match(AndOperatorToken):
+        while self._match(AndOpToken):
             token = self._curr()
             self._advance()
             right = self._next_fn(self._and)
@@ -108,7 +108,7 @@ class Parser(ParserBase):
         return left
 
     def _not(self) -> Expr:
-        if self._match(NotOperatorToken):
+        if self._match(NotOpToken):
             token = self._curr()
             self._advance()
             left = self._not()

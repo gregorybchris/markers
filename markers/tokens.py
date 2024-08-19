@@ -35,7 +35,7 @@ class NameToken(Token):
 
 
 @dataclass
-class AndOperatorToken(Token):
+class AndOpToken(Token):
     """And operator token."""
 
     def __str__(self) -> str:
@@ -44,7 +44,7 @@ class AndOperatorToken(Token):
 
 
 @dataclass
-class OrOperatorToken(Token):
+class OrOpToken(Token):
     """Or operator token."""
 
     def __str__(self) -> str:
@@ -53,7 +53,7 @@ class OrOperatorToken(Token):
 
 
 @dataclass
-class NotOperatorToken(Token):
+class NotOpToken(Token):
     """Not operator token."""
 
     def __str__(self) -> str:

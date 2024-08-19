@@ -3,13 +3,13 @@ from typing import Iterator
 
 from markers.error import InternalError
 from markers.tokens import (
-    AndOperatorToken,
+    AndOpToken,
     EofToken,
     LeftParenToken,
     LitToken,
     NameToken,
-    NotOperatorToken,
-    OrOperatorToken,
+    NotOpToken,
+    OrOpToken,
     PositionInfo,
     RightParenToken,
     Token,
@@ -79,11 +79,11 @@ class Lexer(LexerBase):
             if name == "false":
                 return LitToken(False, pos=pos)
             if name == "and":
-                return AndOperatorToken(pos=pos)
+                return AndOpToken(pos=pos)
             if name == "or":
-                return OrOperatorToken(pos=pos)
+                return OrOpToken(pos=pos)
             if name == "not":
-                return NotOperatorToken(pos=pos)
+                return NotOpToken(pos=pos)
             return NameToken(name, pos=pos)
 
         return NameToken(c, pos=PositionInfo(line_no, char_no, 1))

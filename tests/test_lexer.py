@@ -1,10 +1,10 @@
 from markers.lexer import Lexer
 from markers.tokens import (
-    AndOperatorToken,
+    AndOpToken,
     LeftParenToken,
     NameToken,
-    NotOperatorToken,
-    OrOperatorToken,
+    NotOpToken,
+    OrOpToken,
     PositionInfo,
     RightParenToken,
     Token,
@@ -62,11 +62,11 @@ class TestLexer:
             LeftParenToken(pos=PositionInfo(1, 1, 1)),
             NameToken("A", pos=PositionInfo(1, 2, 1)),
             RightParenToken(pos=PositionInfo(1, 3, 1)),
-            AndOperatorToken(pos=PositionInfo(1, 4, 3)),
-            NotOperatorToken(pos=PositionInfo(2, 1, 3)),
+            AndOpToken(pos=PositionInfo(1, 4, 3)),
+            NotOpToken(pos=PositionInfo(2, 1, 3)),
             LeftParenToken(pos=PositionInfo(2, 4, 1)),
             NameToken("B", pos=PositionInfo(2, 5, 1)),
-            OrOperatorToken(pos=PositionInfo(2, 7, 2)),
+            OrOpToken(pos=PositionInfo(2, 7, 2)),
             NameToken("C", pos=PositionInfo(2, 10, 1)),
             RightParenToken(pos=PositionInfo(2, 11, 1)),
         ]

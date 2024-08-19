@@ -5,12 +5,12 @@ from markers import Parser
 from markers.error import ParseError
 from markers.expressions import BinaryOp, BinaryOpKind, Lit, UnaryOp, UnaryOpKind, Var
 from markers.tokens import (
-    AndOperatorToken,
+    AndOpToken,
     LeftParenToken,
     LitToken,
     NameToken,
-    NotOperatorToken,
-    OrOperatorToken,
+    NotOpToken,
+    OrOpToken,
     RightParenToken,
     Token,
 )
@@ -24,27 +24,27 @@ class TestParser:
         assert expr == Var("A")
 
     def test_parse_not(self) -> None:
-        tokens = [NotOperatorToken(), NameToken("A")]
+        tokens = [NotOpToken(), NameToken("A")]
         expr = Parser(tokens).parse()
         assert expr == UnaryOp(UnaryOpKind.NOT, Var("A"))
 
     def test_parse_and(self) -> None:
-        tokens = [NameToken("A"), AndOperatorToken(), NameToken("B")]
+        tokens = [NameToken("A"), AndOpToken(), NameToken("B")]
         expr = Parser(tokens).parse()
         assert expr == BinaryOp(BinaryOpKind.AND, Var("A"), Var("B"))
 
     def test_parse_or(self) -> None:
-        tokens = [NameToken("A"), OrOperatorToken(), NameToken("B")]
+        tokens = [NameToken("A"), OrOpToken(), NameToken("B")]
         expr = Parser(tokens).parse()
         assert expr == BinaryOp(BinaryOpKind.OR, Var("A"), Var("B"))
 
     def test_parse_parentheses(self) -> None:
         tokens = [
             NameToken("A"),
-            AndOperatorToken(),
+            AndOpToken(),
             LeftParenToken(),
             NameToken("B"),
-            OrOperatorToken(),
+            OrOpToken(),
             NameToken("C"),
             RightParenToken(),
         ]
@@ -52,21 +52,21 @@ class TestParser:
         assert expr == BinaryOp(BinaryOpKind.AND, Var("A"), BinaryOp(BinaryOpKind.OR, Var("B"), Var("C")))
 
     def test_parse_and_binds_tighter_than_or(self) -> None:
-        tokens = [NameToken("A"), AndOperatorToken(), NameToken("B"), OrOperatorToken(), NameToken("C")]
+        tokens = [NameToken("A"), AndOpToken(), NameToken("B"), OrOpToken(), NameToken("C")]
         expr = Parser(tokens).parse()
         assert expr == BinaryOp(BinaryOpKind.OR, BinaryOp(BinaryOpKind.AND, Var("A"), Var("B")), Var("C"))
 
     def test_parse_double_negation(self) -> None:
-        tokens = [NotOperatorToken(), NotOperatorToken(), NameToken("A")]
+        tokens = [NotOpToken(), NotOpToken(), NameToken("A")]
         expr = Parser(tokens).parse()
         assert expr == UnaryOp(UnaryOpKind.NOT, UnaryOp(UnaryOpKind.NOT, Var("A")))
 
     def test_parse_negation_of_parentheses(self) -> None:
         tokens = [
-            NotOperatorToken(),
+            NotOpToken(),
             LeftParenToken(),
             NameToken("A"),
-            OrOperatorToken(),
+            OrOpToken(),
             NameToken("B"),
             RightParenToken(),
         ]
@@ -74,12 +74,12 @@ class TestParser:
         assert expr == UnaryOp(UnaryOpKind.NOT, BinaryOp(BinaryOpKind.OR, Var("A"), Var("B")))
 
     def test_parse_missing_right_paren_raises_parse_error(self) -> None:
-        tokens = [LeftParenToken(), NameToken("A"), OrOperatorToken(), NameToken("B")]
+        tokens = [LeftParenToken(), NameToken("A"), OrOpToken(), NameToken("B")]
         with pytest.raises(ParseError, match=re.escape("Expected token ) at line 0, char 0")):
             Parser(tokens).parse()
 
     def test_parse_missing_left_paren_raises_parse_error(self) -> None:
-        tokens = [NameToken("A"), OrOperatorToken(), NameToken("B"), RightParenToken()]
+        tokens = [NameToken("A"), OrOpToken(), NameToken("B"), RightParenToken()]
         with pytest.raises(ParseError, match=re.escape('Unexpected token ")" at line 0, char 0')):
             Parser(tokens).parse()
 
@@ -89,7 +89,7 @@ class TestParser:
             Parser(tokens).parse()
 
     def test_incomplete_and_raises_parse_error(self) -> None:
-        tokens = [NameToken("A"), AndOperatorToken()]
+        tokens = [NameToken("A"), AndOpToken()]
         with pytest.raises(ParseError, match=re.escape("Unexpected end of input")):
             Parser(tokens).parse()
 
@@ -104,27 +104,27 @@ class TestParser:
         assert expr == Lit(False)
 
     def test_parse_invalid_var_raises_parse_error(self) -> None:
-        tokens = [NameToken("A"), OrOperatorToken(), NameToken("0_invalid")]
+        tokens = [NameToken("A"), OrOpToken(), NameToken("0_invalid")]
         with pytest.raises(ParseError, match=re.escape('Unexpected token "0_invalid" at line 0, char 0')):
             Parser(tokens).parse()
 
     def test_parse_repeated_and(self) -> None:
-        tokens = [NameToken("A"), AndOperatorToken(), NameToken("B"), AndOperatorToken(), NameToken("C")]
+        tokens = [NameToken("A"), AndOpToken(), NameToken("B"), AndOpToken(), NameToken("C")]
         expr = Parser(tokens).parse()
         assert expr == BinaryOp(BinaryOpKind.AND, BinaryOp(BinaryOpKind.AND, Var("A"), Var("B")), Var("C"))
 
     def test_parse_repeated_or(self) -> None:
-        tokens = [NameToken("A"), OrOperatorToken(), NameToken("B"), OrOperatorToken(), NameToken("C")]
+        tokens = [NameToken("A"), OrOpToken(), NameToken("B"), OrOpToken(), NameToken("C")]
         expr = Parser(tokens).parse()
         assert expr == BinaryOp(BinaryOpKind.OR, BinaryOp(BinaryOpKind.OR, Var("A"), Var("B")), Var("C"))
 
     def test_parse_retains_position_info(self) -> None:
         tokens = [
             NameToken("A", pos=PositionInfo(1, 1, 1)),
-            AndOperatorToken(pos=PositionInfo(1, 3, 3)),
+            AndOpToken(pos=PositionInfo(1, 3, 3)),
             LeftParenToken(pos=PositionInfo(1, 7, 1)),
             NameToken("B", pos=PositionInfo(1, 8, 1)),
-            OrOperatorToken(pos=PositionInfo(1, 10, 2)),
+            OrOpToken(pos=PositionInfo(1, 10, 2)),
             NameToken("C", pos=PositionInfo(1, 13, 1)),
             RightParenToken(pos=PositionInfo(1, 14, 1)),
         ]
