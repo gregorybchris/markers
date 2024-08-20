@@ -30,3 +30,4 @@ pytest tests
 
 - [Eoin Davey's Blog](https://vey.ie/2018/10/04/RecursiveDescent.html)
 - [Scrapscript Interpreter](https://github.com/tekknolagi/scrapscript)
+- [Typped Pratt Parsing](https://abarker.github.io/typped/pratt_parsing_intro.html)
